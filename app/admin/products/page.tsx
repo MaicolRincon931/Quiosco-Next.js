@@ -12,7 +12,6 @@ async function productCount() {
 }
 
 async function getProducts(page: number, pageSize: number) {
-
   const skip = (page - 1) * pageSize
 
   const products = await prisma.product.findMany({
@@ -27,10 +26,17 @@ async function getProducts(page: number, pageSize: number) {
 
 export type ProductWithCategory = Awaited<ReturnType<typeof getProducts>>
 
-export default async function ProductsPage({ searchParams }: { searchParams: { page: string } }) {
+// ✅ Corregido: searchParams ahora es una promesa en Next.js 15
+export default async function ProductsPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ page?: string }> 
+}) {
 
-  const page = await +searchParams.page || 1
-  const pageSize = 15
+  // ✅ Await searchParams antes de usar
+  const { page: pageParam } = await searchParams;
+  const page = +pageParam! || 1;
+  const pageSize = 15;
 
   if (page < 1) {
     redirect('/admin/products')
@@ -59,7 +65,6 @@ export default async function ProductsPage({ searchParams }: { searchParams: { p
         </Link>
 
         <ProductSearch />
-
       </div>
 
       <ProductTable
