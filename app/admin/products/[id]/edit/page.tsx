@@ -5,9 +5,9 @@ import ProductForm from "@/components/products/ProductForm";
 import GoBackButton from "@/components/ui/GoBackButton";
 import Heading from "@/components/ui/Heading";
 
-// 👇 Este tipo es compatible con el App Router
+// ✅ Corregido: params ahora es una promesa en Next.js 15
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 async function getProductById(id: number) {
@@ -20,7 +20,9 @@ async function getProductById(id: number) {
 }
 
 export default async function EditProductPage({ params }: PageProps) {
-  const product = await getProductById(Number(params.id));
+  // ✅ Await params antes de usar
+  const { id } = await params;
+  const product = await getProductById(Number(id));
 
   return (
     <>
